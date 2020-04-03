@@ -49,9 +49,9 @@ if __name__ == "__main__":
         ]))
 
         models[-1].compile(
-            optimizer=tf.optimizers.Adam(),
-            loss=tf.losses.SparseCategoricalCrossentropy(),
-            metrics=[tf.metrics.SparseCategoricalAccuracy(name="accuracy")],
+            optimizer=tf.keras.optimizers.Adam(),
+            loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+            metrics=[tf.keras.metrics.SparseCategoricalAccuracy(name="accuracy")],
         )
 
         print("Training model {}: ".format(model + 1), end="", flush=True)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         for model in range(args.models):
             # TODO: Compute the accuracy on the dev set for
             # the individual `models[model]`.
-            individual_accuracy = None
+            individual_accuracy = models[model].evaluate(mnist.dev.data["images"], mnist.dev.data["labels"])[1]
 
             # TODO: Compute the accuracy on the dev set for
             # the ensemble `models[0:model+1].
@@ -75,12 +75,24 @@ if __name__ == "__main__":
             #    which averages the models in the ensemble (using
             #    `tf.keras.layers.Average`). Then you can compile the model
             #    with the required metric and use `model.evaluate`.
+            if model == 0:
+                model = models[0]
+            else:
+                inputs = tf.keras.layers.Input([MNIST.H, MNIST.W, MNIST.C])
+                layers = [m(inputs) for m in models[0:model+1]]
+                outputs = tf.keras.layers.Average()(layers)
+                model = tf.keras.Model(inputs=inputs, outputs=outputs)
+                model.compile(
+                    optimizer=tf.keras.optimizers.Adam(),
+                    loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+                    metrics=[tf.keras.metrics.SparseCategoricalAccuracy(name="accuracy")],
+                )
             # 2) Manually perform the averaging (using TF or NumPy). In this case
             #    you do not need to construct Keras ensemble model at all,
             #    and instead call `model.predict` on individual models and
             #    average the results. To measure accuracy, either do it completely
-            #    manually or use `tf.metrics.SparseCategoricalAccuracy`.
-            ensemble_accuracy = None
+            #    manually or use `tf.keras.metrics.SparseCategoricalAccuracy`.
+            ensemble_accuracy = model.evaluate(mnist.dev.data["images"], mnist.dev.data["labels"])[1]
 
             # Print the results.
             print("{:.2f} {:.2f}".format(100 * individual_accuracy, 100 * ensemble_accuracy), file=out_file)

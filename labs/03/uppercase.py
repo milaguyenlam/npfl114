@@ -13,16 +13,24 @@ if __name__ == "__main__":
     # Parse arguments
     # TODO: Set reasonable values for `alphabet_size` and `window`.
     parser = argparse.ArgumentParser()
-    parser.add_argument("--alphabet_size", default=None, type=int, help="If nonzero, limit alphabet to this many most frequent chars.")
-    parser.add_argument("--batch_size", default=50, type=int, help="Batch size.")
-    parser.add_argument("--epochs", default=10, type=int, help="Number of epochs.")
-    parser.add_argument("--hidden_layers", default="500", type=str, help="Hidden layer configuration.")
+    parser.add_argument("--alphabet_size", default=0, type=int,
+                        help="If nonzero, limit alphabet to this many most frequent chars.")
+    parser.add_argument("--batch_size", default=50,
+                        type=int, help="Batch size.")
+    parser.add_argument("--epochs", default=10, type=int,
+                        help="Number of epochs.")
+    parser.add_argument("--hidden_layers", default="500",
+                        type=str, help="Hidden layer configuration.")
     parser.add_argument("--seed", default=42, type=int, help="Random seed.")
-    parser.add_argument("--threads", default=1, type=int, help="Maximum number of threads to use.")
-    parser.add_argument("--verbose", default=False, action="store_true", help="Verbose TF logging.")
-    parser.add_argument("--window", default=None, type=int, help="Window size to use.")
+    parser.add_argument("--threads", default=1, type=int,
+                        help="Maximum number of threads to use.")
+    parser.add_argument("--verbose", default=False,
+                        action="store_true", help="Verbose TF logging.")
+    parser.add_argument("--window", default=5, type=int,
+                        help="Window size to use.")
     args = parser.parse_args([] if "__file__" not in globals() else None)
-    args.hidden_layers = [int(hidden_layer) for hidden_layer in args.hidden_layers.split(",") if hidden_layer]
+    args.hidden_layers = [int(
+        hidden_layer) for hidden_layer in args.hidden_layers.split(",") if hidden_layer]
 
     # Fix random seeds and threads
     np.random.seed(args.seed)
@@ -38,7 +46,8 @@ if __name__ == "__main__":
     args.logdir = os.path.join("logs", "{}-{}-{}".format(
         os.path.basename(globals().get("__file__", "notebook")),
         datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S"),
-        ",".join(("{}={}".format(re.sub("(.)[^_]*_?", r"\1", key), value) for key, value in sorted(vars(args).items())))
+        ",".join(("{}={}".format(re.sub(
+            "(.)[^_]*_?", r"\1", key), value) for key, value in sorted(vars(args).items())))
     ))
 
     # Load data
@@ -62,8 +71,21 @@ if __name__ == "__main__":
     #       inputs = tf.keras.layers.Input(shape=[2 * args.window + 1], dtype=tf.int32)
     #       encoded = tf.one_hot(inputs, len(uppercase_data.train.alphabet))
     #   You can then flatten the one-hot encoded windows and follow with a dense layer.
-    # - Alternatively, you can use `tf.keras.layers.Embedding` (which is an efficient
-    #   implementation of one-hot encoding followed by a Dense layer) and flatten afterwards.
+    # - Alternatively, you can use `tf.keras.layers.Embedding`, which is an efficient
+    #   implementation of one-hot encoding followed by a Dense layer, and flatten afterwards.
+
+    hidden_layer_size = 128
+
+    model = tf.keras.Sequential([
+        tf.keras.layers.InputLayer(
+            shape=[2 * args.window + 1], dtype=tf.int32),
+        tf.keras.layers.Lambda(lambda x: tf.one_hot(
+            x, len(uppercase_data.train.alphabet))),
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(hidden_layer_size, activation=tf.nn.relu),
+        tf.keras.layers.Dense(hidden_layer_size, activation=tf.nn.relu),
+
+    ])
 
     with open(os.path.join(args.logdir, "uppercase_test.txt"), "w", encoding="utf-8") as out_file:
         # TODO: Generate correctly capitalized test set.

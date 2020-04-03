@@ -41,9 +41,9 @@ if __name__ == "__main__":
     model.summary()
 
     model.compile(
-        optimizer=tf.optimizers.Adam(),
-        loss=tf.losses.SparseCategoricalCrossentropy(),
-        metrics=[tf.metrics.SparseCategoricalAccuracy()],
+        optimizer=tf.keras.optimizers.Adam(),
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+        metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
     )
 
     model.fit(

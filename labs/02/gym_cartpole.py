@@ -10,12 +10,17 @@ import tensorflow as tf
 if __name__ == "__main__":
     # TODO: Set reasonable defaults and possibly add more arguments.
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch_size", default=None, type=int, help="Batch size.")
-    parser.add_argument("--epochs", default=None, type=int, help="Number of epochs.")
-    parser.add_argument("--model", default="gym_cartpole_model.h5", type=str, help="Output model path.")
+    parser.add_argument("--batch_size", default=1,
+                        type=int, help="Batch size.")
+    parser.add_argument("--epochs", default=100,
+                        type=int, help="Number of epochs.")
+    parser.add_argument("--model", default="gym_cartpole_model.h5",
+                        type=str, help="Output model path.")
     parser.add_argument("--seed", default=42, type=int, help="Random seed.")
-    parser.add_argument("--threads", default=1, type=int, help="Maximum number of threads to use.")
-    parser.add_argument("--verbose", default=False, action="store_true", help="Verbose TF logging.")
+    parser.add_argument("--threads", default=1, type=int,
+                        help="Maximum number of threads to use.")
+    parser.add_argument("--verbose", default=False,
+                        action="store_true", help="Verbose TF logging.")
     args = parser.parse_args([] if "__file__" not in globals() else None)
 
     # Fix random seeds and threads
@@ -32,7 +37,8 @@ if __name__ == "__main__":
     args.logdir = os.path.join("logs", "{}-{}-{}".format(
         os.path.basename(globals().get("__file__", "notebook")),
         datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S"),
-        ",".join(("{}={}".format(re.sub("(.)[^_]*_?", r"\1", key), value) for key, value in sorted(vars(args).items())))
+        ",".join(("{}={}".format(re.sub(
+            "(.)[^_]*_?", r"\1", key), value) for key, value in sorted(vars(args).items())))
     ))
 
     # Load the data
@@ -49,12 +55,23 @@ if __name__ == "__main__":
     # - binary classification with 1 output and sigmoid activation;
     # - two-class classification with 2 outputs and softmax activation.
 
-    model = ...
+    hidden_layer = 128
+    output_layer = 2
+
+    model = tf.keras.Sequential([
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(hidden_layer, activation=tf.nn.relu),
+        tf.keras.layers.Dense(output_layer, activation=tf.nn.softmax)
+    ])
 
     # TODO: Prepare the model for training using the `model.compile` method.
-    model.compile(...)
+    model.compile(
+        loss=tf.losses.SparseCategoricalCrossentropy()
+    )
 
-    tb_callback=tf.keras.callbacks.TensorBoard(args.logdir, update_freq=100, profile_batch=0)
+    tb_callback = tf.keras.callbacks.TensorBoard(
+        args.logdir, update_freq=100, profile_batch=0)
+
     model.fit(
         observations, labels,
         batch_size=args.batch_size, epochs=args.epochs,

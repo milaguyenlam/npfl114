@@ -6,4 +6,7 @@
 #
 # You can find out ReCodEx ID in the URL bar after navigating
 # to your User profile page. The ID has the following format:
-# 01234567-89ab-cdef-0123-456789abcdef.
+
+# 4d0c9d58-aff9-11e7-a937-00505601122b
+# 46a26105-1ada-11e8-9de3-00505601122b
+# 3619d41d-b80b-11e7-a937-00505601122b

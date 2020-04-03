@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", default=10, type=int, help="Number of epochs.")
     parser.add_argument("--hidden_layer", default=200, type=int, help="Size of the hidden layer.")
     parser.add_argument("--learning_rate", default=0.01, type=float, help="Initial learning rate.")
-    parser.add_argument("--learning_rate_final", default=None, type=float, help="Final learning rate.")
+    parser.add_argument("--learning_rate_final", default=0.0001, type=float, help="Final learning rate.")
     parser.add_argument("--momentum", default=None, type=float, help="Momentum.")
     parser.add_argument("--optimizer", default="SGD", type=str, help="Optimizer to use.")
     parser.add_argument("--recodex", default=False, action="store_true", help="Evaluation in ReCodEx.")
@@ -69,16 +69,33 @@ if __name__ == "__main__":
     #     just after the training (and keep the default `staircase=False`).
     #   In both cases, `decay_steps` should be total number of training batches
     #   and you should pass the created `{Polynomial,Exponential}Decay` to
-    #   the optimizer using the `learning_rate` constructor argument.
+    #   the optizer using the `learning_rate` constructor argument.
     #   The size of the training MNIST dataset it `mnist.train.size` and you
     #   can assume is it divisible by `args.batch_size`.
     #
     #   If a learning rate schedule is used, you can find out the current learning
     #   rate by using `model.optimizer.learning_rate(model.optimizer.iterations)`,
     #   so after training this value should be `args.learning_rate_final`.
+    def get_learning_rate():
+        if args.decay is None:
+            return args.learning_rate
+        steps = args.epochs*mnist.train.size/args.batch_size
+        if args.decay == 'polynomial':
+            return tf.optimizers.schedules.PolynomialDecay(
+                args.learning_rate, steps, args.learning_rate_final)
+        elif args.decay == 'exponential':
+            rate = args.learning_rate_final/args.learning_rate
+            return tf.optimizers.schedules.ExponentialDecay(args.learning_rate, steps, rate)
+
+    opt = None
+    if args.optimizer == 'SGD':
+        opt = tf.optimizers.SGD(learning_rate=get_learning_rate(),
+                                momentum=args.momentum if args.momentum is not None else 0.0)
+    elif args.optimizer == 'Adam':
+        opt = tf.optimizers.Adam(learning_rate=get_learning_rate())
 
     model.compile(
-        optimizer=None,
+        optimizer=opt,
         loss=tf.losses.SparseCategoricalCrossentropy(),
         metrics=[tf.metrics.SparseCategoricalAccuracy()],
     )
@@ -98,4 +115,4 @@ if __name__ == "__main__":
 
     # TODO: Write test accuracy as percentages rounded to two decimal places.
     with open("mnist_training.out", "w") as out_file:
-        print("{:.2f}".format(100 * accuracy), file=out_file)
+        print("{:.2f}".format(100 * test_logs[1]), file=out_file)
