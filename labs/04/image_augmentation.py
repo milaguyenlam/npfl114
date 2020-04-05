@@ -78,8 +78,6 @@ if __name__ == "__main__":
             height_shift_range=0.1,
             horizontal_flip=True)
 
-    # train_generator.fit(cifar.train.data["images"][:5000], True, seed=args.seed)
-
     # TODO: Train using the generator. To augment data, use
     # `train_generator.flow` and specify:
     # - first 5000 of cifar.train.data["images"] as inputs
