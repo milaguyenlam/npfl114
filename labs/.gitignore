@@ -1,6 +1,6 @@
 __pycache__/
 logs/
-.idea
+.idea/
 /deepnote_ngrok
 *.h5
 *.npz
