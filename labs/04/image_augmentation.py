@@ -72,7 +72,11 @@ if __name__ == "__main__":
     # - width shift range and height shift range of 0.1 (10%),
     # - allow horizontal flips
     train_generator = tf.keras.preprocessing.image.ImageDataGenerator(
-        rotation_range=20, zoom_range=0.2, width_shift_range=0.1, height_shift_range=0.1, horizontal_flip=True)
+            rotation_range=20,
+            zoom_range=0.2,
+            width_shift_range=0.1,
+            height_shift_range=0.1,
+            horizontal_flip=True)
 
     # train_generator.fit(cifar.train.data["images"][:5000], True, seed=args.seed)
 
@@ -84,8 +88,11 @@ if __name__ == "__main__":
     # - args.seed as random seed
 
     model.fit(
-        train_generator.flow(cifar.train.data["images"][:5000], cifar.train.data["labels"][:5000],
-                             args.batch_size, seed=args.seed),
+        train_generator.flow(
+            cifar.train.data['images'][:5000],
+            cifar.train.data['labels'][:5000],
+            batch_size=args.batch_size,
+            seed=args.seed),
         shuffle=False, epochs=args.epochs,
         validation_data=(cifar.dev.data["images"], cifar.dev.data["labels"]),
         callbacks=[tb_callback],
