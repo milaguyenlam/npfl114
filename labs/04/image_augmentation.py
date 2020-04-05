@@ -59,9 +59,9 @@ if __name__ == "__main__":
     # Train the model
     model = tf.keras.Model(inputs=inputs, outputs=outputs)
     model.compile(
-        optimizer=tf.optimizers.Adam(),
-        loss=tf.losses.SparseCategoricalCrossentropy(),
-        metrics=[tf.metrics.SparseCategoricalAccuracy(name="accuracy")],
+        optimizer=tf.keras.optimizers.Adam(),
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+        metrics=[tf.keras.metrics.SparseCategoricalAccuracy(name="accuracy")],
     )
     tb_callback=tf.keras.callbacks.TensorBoard(args.logdir, histogram_freq=1, update_freq=100, profile_batch=0)
 
@@ -71,7 +71,12 @@ if __name__ == "__main__":
     # - zoom range of 0.2 (20%),
     # - width shift range and height shift range of 0.1 (10%),
     # - allow horizontal flips
-    train_generator = ...
+    train_generator = tf.keras.preprocessing.image.ImageDataGenerator(
+            rotation_range=20,
+            zoom_range=0.2,
+            width_shift_range=0.1,
+            height_shift_range=0.1,
+            horizontal_flip=True)
 
     # TODO: Train using the generator. To augment data, use
     # `train_generator.flow` and specify:
@@ -80,7 +85,11 @@ if __name__ == "__main__":
     # - batch_size of args.batch_size
     # - args.seed as random seed
     model.fit(
-        ...
+        train_generator.flow(
+            cifar.train.data['images'][:5000],
+            cifar.train.data['labels'][:5000],
+            batch_size=args.batch_size,
+            seed=args.seed),
         shuffle=False, epochs=args.epochs,
         validation_data=(cifar.dev.data["images"], cifar.dev.data["labels"]),
         callbacks=[tb_callback],

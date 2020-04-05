@@ -59,9 +59,9 @@ if __name__ == "__main__":
     # Train the model
     model = tf.keras.Model(inputs=inputs, outputs=outputs)
     model.compile(
-        optimizer=tf.optimizers.Adam(),
-        loss=tf.losses.SparseCategoricalCrossentropy(),
-        metrics=[tf.metrics.SparseCategoricalAccuracy(name="accuracy")],
+        optimizer=tf.keras.optimizers.Adam(),
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+        metrics=[tf.keras.metrics.SparseCategoricalAccuracy(name="accuracy")],
     )
     tb_callback=tf.keras.callbacks.TensorBoard(args.logdir, histogram_freq=1, update_freq=100, profile_batch=0)
 
@@ -71,8 +71,8 @@ if __name__ == "__main__":
     # of `from_tensor_slices` -- in our case we want each example to
     # be a pair of `(input_image, target_label)`, so we need to pass
     # a pair `(data["images"], data["labels"])` to `from_tensor_slices`.
-    train = ...
-    dev = ...
+    train = tf.data.Dataset.from_tensor_slices((cifar.train.data['images'], cifar.train.data['labels']))
+    dev = tf.data.Dataset.from_tensor_slices((cifar.dev.data['images'], cifar.dev.data['labels']))
 
     # Simple data augmentation
     def train_augment(image, label):
@@ -90,11 +90,11 @@ if __name__ == "__main__":
     #   the given seed and a buffer of the size of the whole data
     # - call `.map(train_augment)` to perform the dataset augmentation
     # - finally call `.batch(args.batch_size)` to generate batches
-    train = ...
+    train = train.take(5000).shuffle(5000, seed=args.seed).map(train_augment).batch(args.batch_size)
 
     # TODO: Prepare the `dev` pipeline
     # - just use `.batch(args.batch_size)` to generate batches
-    dev = ...
+    dev = dev.batch(args.batch_size)
 
     # Train
     model.fit(train, epochs=args.epochs,
