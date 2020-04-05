@@ -84,6 +84,7 @@ if __name__ == "__main__":
     # - first 5000 of cifar.train.data["labels"] as target
     # - batch_size of args.batch_size
     # - args.seed as random seed
+
     model.fit(
         train_generator.flow(
             cifar.train.data['images'][:5000],
