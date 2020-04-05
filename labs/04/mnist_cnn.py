@@ -9,6 +9,7 @@ import tensorflow as tf
 
 from mnist import MNIST
 
+
 # The neural network model
 class Network:
     def __init__(self, args):
@@ -34,6 +35,47 @@ class Network:
         # You can assume the resulting network is valid; it is fine to crash if it is not.
         #
         # Produce the results in variable `hidden`.
+        def get_layers(layers, inputs):
+            labels = ['C', 'CB', 'M', 'R', 'F', 'H', 'D']
+            funcs = [C, CB, M, R, F, H, D]
+            for l in layers:
+                layer = l.split('-')
+                inputs = funcs[labels.index(layer[0])](layer[1:], inputs)
+            return inputs
+
+        def C(layer, inputs):
+            return tf.keras.layers.Convolution2D(filters=int(layer[0]), kernel_size=int(layer[1]),
+                                                 strides=int(layer[2]), padding=layer[3], activation='relu')(inputs)
+
+        def CB(layer, inputs):
+            c = tf.keras.layers.Convolution2D(filters=int(layer[0]), kernel_size=int(layer[1]),
+                                              strides=int(layer[2]), padding=layer[3], use_bias=False)
+            bn = tf.keras.layers.BatchNormalization()
+            relu = tf.keras.layers.Activation('relu')
+            return relu(bn(c(inputs)))
+
+        def M(layer, inputs):
+            return tf.keras.layers.MaxPooling2D(int(layer[0]), int(layer[1]))(inputs)
+
+        def R(layer, inputs):
+            layer = layer[0][1:-1].replace(';', ',')
+            layer = layer.replace('=', '-')
+            return tf.keras.layers.Add()([inputs, get_layers(layer.split(','), inputs)])
+
+        def F(layer, inputs):
+            return tf.keras.layers.Flatten()(inputs)
+
+        def H(layer, inputs):
+            return tf.keras.layers.Dense(int(layer[0]), 'relu')(inputs)
+
+        def D(layer, inputs):
+            return tf.keras.layers.Dropout(float(layer[0]))(inputs)
+
+        args.cnn = re.sub(r',(?=[^\[]*\])', ';', args.cnn)
+        args.cnn = re.sub(r'-(?=[^\[]*\])', '=', args.cnn)
+        layers = args.cnn.split(',')
+
+        hidden = get_layers(layers, inputs)
 
         # Add the final output layer
         outputs = tf.keras.layers.Dense(MNIST.LABELS, activation=tf.nn.softmax)(hidden)
@@ -44,7 +86,8 @@ class Network:
             loss=tf.losses.SparseCategoricalCrossentropy(),
             metrics=[tf.metrics.SparseCategoricalAccuracy(name="accuracy")],
         )
-        self._tb_callback=tf.keras.callbacks.TensorBoard(args.logdir, histogram_freq=1, update_freq=100, profile_batch=0)
+        self._tb_callback = tf.keras.callbacks.TensorBoard(args.logdir, histogram_freq=1, update_freq=100,
+                                                           profile_batch=0)
 
     def train(self, mnist, args):
         self._model.fit(
@@ -55,8 +98,10 @@ class Network:
         )
 
     def test(self, mnist, args):
-        test_logs = self._model.evaluate(mnist.test.data["images"], mnist.test.data["labels"], batch_size=args.batch_size)
-        self._tb_callback.on_epoch_end(1, {"val_test_" + metric: value for metric, value in zip(self._model.metrics_names, test_logs)})
+        test_logs = self._model.evaluate(mnist.test.data["images"], mnist.test.data["labels"],
+                                         batch_size=args.batch_size)
+        self._tb_callback.on_epoch_end(1, {"val_test_" + metric: value for metric, value in
+                                           zip(self._model.metrics_names, test_logs)})
         return test_logs[self._model.metrics_names.index("accuracy")]
 
 
