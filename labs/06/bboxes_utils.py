@@ -62,29 +62,32 @@ def bboxes_training(anchors, gold_classes, gold_bboxes, iou_threshold):
     Returns:
     - `anchor_classes` contains for every anchor either 0 for background
       (if no gold object is assigned) or `1 + gold_class` if a gold object
-      with `gold_class` as assigned to it
+      with `gold_class` is assigned to it
     - `anchor_bboxes` contains for every anchor a four-tuple
       `(center_y, center_x, height, width)` representing the gold bbox of
-      a chosen object using parametrization of Fast R-CNN; zeros if not
+      a chosen object using parametrization of Fast R-CNN; zeros if no
       gold object was assigned to the anchor
 
     Algorithm:
     - First, gold objects are sequentially processed. For each gold object,
-      find the first unused anchor with largest IoU and if the IoU is > 0,
-      assign the object to the anchor.
+      find the unused anchor with the largest IoU (the first one if there are
+      several) and if the IoU is > 0, assign the object to the anchor.
     - Second, anchors unassigned so far are sequentially processed. For each
-      anchor, find the first gold object with the largest IoU, and if the
-      IoU is >= threshold, assign the object to the anchor.
+      anchor, find the gold object with the largest IoU (again the first one if
+      there are several), and if the IoU is >= threshold, assign the object to
+      the anchor.
     """
 
     anchor_classes = np.zeros(len(anchors), np.int32)
     anchor_bboxes = np.zeros([len(anchors), 4], np.float32)
 
-    # TODO: Sequentially for each gold object, find the first unused anchor
-    # with the largest IoU and if the IoU is > 0, assign the object to the anchor.
+    # TODO: Sequentially for each gold object, find the unused anchor
+    # with the largest IoU (the first one if there are several)
+    # and if the IoU is > 0, assign the object to the anchor.
 
-    # TODO: Sequentially for each unassigned anchor, find the first gold object
-    # with the largest IoU. If the IoU >= threshold, assign the object to the anchor.
+    # TODO: Sequentially for each unassigned anchor, find the gold object
+    # with the largest IoU (the first one if there are several).
+    # If the IoU >= threshold, assign the object to the anchor.
 
     return anchor_classes, anchor_bboxes
 

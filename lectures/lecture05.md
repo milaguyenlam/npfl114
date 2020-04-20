@@ -2,18 +2,18 @@
 #### Date: Mar 30
 #### Slides: https://ufal.mff.cuni.cz/~straka/courses/npfl114/1920/slides/?05
 #### Reading: https://ufal.mff.cuni.cz/~straka/courses/npfl114/1920/slides.pdf/npfl114-05.pdf,PDF Slides
-#### Video: https://lectures.ms.mff.cuni.cz/video/rec/npfl114/1920/npfl114-05.mp4,2020 Video
+#### Video: https://lectures.ms.mff.cuni.cz/video/rec/npfl114/1920/npfl114-05.mp4,Video
 #### Video: https://slideslive.com/38906863/deep-learning-lecture-5-convolutional-networks-ii,2018 Video
 #### Lecture assignment: mnist_web
 #### Lecture assignment: cags_classification
 #### Lecture assignment: cags_segmentation
 
-<video width="426" height="240" controls style="float: right">
+<video width="355" height="200" controls style="float: right">
   <source src="https://lectures.ms.mff.cuni.cz/video/rec/npfl114/1920/npfl114-05.mp4" type="video/mp4">
 </video>
 
 - Residual CNN Networks
-  - ResNet [[Kaiming He et al.: Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)]
+  - ResNet [[Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385)]
   - WideNet [[Wide Residual Network](https://arxiv.org/abs/1605.07146)]
   - DenseNet [[Densely Connected Convolutional Networks](https://arxiv.org/abs/1608.06993)]
   - PyramidNet [[Deep Pyramidal Residual Networks](https://arxiv.org/abs/1610.02915)]
